@@ -1,0 +1,75 @@
+[
+    {
+      "type": "section",
+      "label": "Ascent 1",
+      "start": 1,
+      "end": 105,
+      "color": "#34D399"
+    },
+    {
+      "type": "marker",
+      "label": "Peak 1",
+      "measure": 106,
+      "color": "#FCD34D"
+    },
+    {
+      "type": "section",
+      "label": "Descent 1",
+      "start": 106,
+      "end": 210,
+      "color": "#60A5FA"
+    },
+    {
+      "type": "marker",
+      "label": "Valley 1",
+      "measure": 211,
+      "color": "#A78BFA"
+    },
+    {
+      "type": "section",
+      "label": "Ascent 2",
+      "start": 211,
+      "end": 315,
+      "color": "#34D399"
+    },
+    {
+      "type": "marker",
+      "label": "Peak 2",
+      "measure": 316,
+      "color": "#FCD34D"
+    },
+    {
+      "type": "section",
+      "label": "Descent 2",
+      "start": 316,
+      "end": 420,
+      "color": "#60A5FA"
+    },
+    {
+      "type": "marker",
+      "label": "Valley 2",
+      "measure": 421,
+      "color": "#A78BFA"
+    },
+    {
+      "type": "section",
+      "label": "Ascent 3",
+      "start": 421,
+      "end": 525,
+      "color": "#34D399"
+    },
+    {
+      "type": "marker",
+      "label": "Peak 3",
+      "measure": 526,
+      "color": "#FCD34D"
+    },
+    {
+      "type": "section",
+      "label": "Descent 3",
+      "start": 526,
+      "end": 630,
+      "color": "#60A5FA"
+    }
+  ]
+  
