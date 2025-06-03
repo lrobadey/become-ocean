@@ -2,6 +2,7 @@
 import { updatePlayPauseIcon } from './audioControls.js';
 import { drawFormalAnnotations } from './annotations.js';
 import { setupToggles } from './toggles.js';
+import { throttle } from './utils.js';
 
 export function initVisualizer() {
   console.log("DOM fully loaded and parsed.");
@@ -331,7 +332,12 @@ export function initVisualizer() {
       .attr('x1', xb(1)).attr('x2', xb(1));
     console.log("Overview marker created.");
 
-    brush = d3.brushX().extent([[0, 0], [width, brushHeight]]).on('brush end', handleBrush);
+    // Throttle brush updates to reduce expensive redraws during dragging
+    const throttledHandleBrush = throttle(handleBrush, 50);
+    brush = d3.brushX()
+      .extent([[0, 0], [width, brushHeight]])
+      .on('brush', throttledHandleBrush)
+      .on('end', handleBrush);
     gBrush = overviewG.append('g')
       .attr('class', 'brush')
       .call(brush);
