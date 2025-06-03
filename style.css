@@ -7,6 +7,18 @@ body {
   margin: 0;
 }
 
+header.bg-blue-800 {
+  background: linear-gradient(90deg, #1e3a8a, #1d4ed8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  animation: fade-down 0.6s ease-out both;
+}
+
+aside.bg-gray-800 {
+  background: linear-gradient(180deg, #1f2937, #111827);
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.4);
+  animation: slide-in-left 0.6s ease-out both;
+}
+
 #visualizer {
   width: 100%;
   height: 100%;
@@ -20,15 +32,40 @@ body {
 }
 
 /* --- Custom Toggle Button Styles --- */
+.toggle-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
 .legend-toggle {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 0.375rem;
   cursor: pointer;
-  transition: opacity 0.3s;
-  /* Use dark text if background is light */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: background-color 0.3s, opacity 0.3s, transform 0.25s, box-shadow 0.25s;
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(0,0,0,0.1));
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   color: #000;
-  opacity: 0.8; /* default */
+  opacity: 0.85;
+}
+
+.legend-toggle .icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.legend-toggle:hover {
+  opacity: 1;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.4);
+}
+
+.legend-toggle:active {
+  transform: translateY(-1px) scale(0.95);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25) inset;
 }
 
 .legend-toggle.active {
@@ -54,9 +91,36 @@ body {
   color: #fff;
 }
 
+/* Play/Pause button styling */
+#play-pause-button {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s;
+  background-image: linear-gradient(145deg, #2563eb, #1d4ed8);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+#play-pause-button:hover {
+  transform: translateY(-2px) scale(1.1);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+#play-pause-button:active {
+  transform: translateY(0) scale(0.95);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35) inset;
+}
+
+#play-pause-button:focus-visible {
+  animation: pulse-ring 1.2s ease-out;
+}
+
+.marker, .overview-marker {
+  transition: transform 0.15s ease-out;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7));
+}
+
 /* Gentle ocean background animation */
 @keyframes ocean-wave {
   0% { background-position: 0 0; }
+  50% { background-position: 100% 0; }
   100% { background-position: 200% 0; }
 }
 
@@ -67,6 +131,23 @@ body {
   z-index: -1;
   background: linear-gradient(90deg, #0c254b, #163d72, #0c254b);
   background-size: 200% 100%;
-  animation: ocean-wave 20s linear infinite;
+  animation: ocean-wave 15s linear infinite alternate;
+  filter: brightness(1.1);
+}
+
+@keyframes slide-in-left {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fade-down {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+  80% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
 }
 
