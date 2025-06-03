@@ -267,9 +267,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Setup Overview and Brush ---
     overviewG.append('rect').attr('width', width).attr('height', brushHeight).attr('fill', "#112940").attr('rx', 3).attr('ry', 3);
+
+    // Overview area and line generators
     lineOverviewStr = d3.line().x((d, i) => xb(tData[i])).y((d, i) => yb(d * dynamicStringsFn(tData[i])));
     lineOverviewBra = d3.line().x((d, i) => xb(tData[i])).y((d, i) => yb(d * dynamicBrassFn(tData[i])));
     lineOverviewWin = d3.line().x((d, i) => xb(tData[i])).y((d, i) => yb(d * dynamicWindsFn(tData[i])));
+
+    const areaOverviewStr = d3.area()
+      .x((d, i) => xb(tData[i]))
+      .y0(brushHeight)
+      .y1((d, i) => yb(d * dynamicStringsFn(tData[i])));
+    const areaOverviewBra = d3.area()
+      .x((d, i) => xb(tData[i]))
+      .y0(brushHeight)
+      .y1((d, i) => yb(d * dynamicBrassFn(tData[i])));
+    const areaOverviewWin = d3.area()
+      .x((d, i) => xb(tData[i]))
+      .y0(brushHeight)
+      .y1((d, i) => yb(d * dynamicWindsFn(tData[i])));
+
+    const overviewAreaOpacity = 0.4;
+    overviewG.append('path')
+      .datum(stringsData)
+      .attr('class', 'overview-area strings-area')
+      .attr('d', areaOverviewStr)
+      .attr('fill', '#7DD3FC')
+      .attr('fill-opacity', overviewAreaOpacity)
+      .attr('stroke', 'none');
+    overviewG.append('path')
+      .datum(brassData)
+      .attr('class', 'overview-area brass-area')
+      .attr('d', areaOverviewBra)
+      .attr('fill', '#1E40AF')
+      .attr('fill-opacity', overviewAreaOpacity)
+      .attr('stroke', 'none');
+    overviewG.append('path')
+      .datum(windsData)
+      .attr('class', 'overview-area winds-area')
+      .attr('d', areaOverviewWin)
+      .attr('fill', '#14B8A6')
+      .attr('fill-opacity', overviewAreaOpacity)
+      .attr('stroke', 'none');
+
     overviewG.append('path').datum(stringsData).attr('class', 'overview-line').attr('d', lineOverviewStr).attr('stroke', "#7DD3FC").attr('stroke-width', 1).attr('fill', 'none').attr('opacity', 0.6);
     overviewG.append('path').datum(brassData).attr('class', 'overview-line').attr('d', lineOverviewBra).attr('stroke', "#1E40AF").attr('stroke-width', 1).attr('fill', 'none').attr('opacity', 0.6);
     overviewG.append('path').datum(windsData).attr('class', 'overview-line').attr('d', lineOverviewWin).attr('stroke', "#14B8A6").attr('stroke-width', 1).attr('fill', 'none').attr('opacity', 0.6);
