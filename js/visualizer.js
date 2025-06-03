@@ -1,6 +1,9 @@
-// --- START OF FILE app.js ---
+// --- Visualizer module ---
+import { updatePlayPauseIcon } from './audioControls.js';
+import { drawFormalAnnotations } from './annotations.js';
+import { setupToggles } from './toggles.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+export function initVisualizer() {
   console.log("DOM fully loaded and parsed.");
 
   // --- Flags and Globals ---
@@ -27,16 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const playIconSVG = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>`;
   const pauseIconSVG = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm1 4a1 1 0 100 2h4a1 1 0 100-2H8z" clip-rule="evenodd"></path></svg>`;
 
-  function updatePlayPauseIcon() {
-    if (!audio || !playPauseButton) return;
-    if (audio.paused) {
-      playPauseButton.innerHTML = playIconSVG;
-      playPauseButton.setAttribute('aria-label', 'Play');
-    } else {
-      playPauseButton.innerHTML = pauseIconSVG;
-      playPauseButton.setAttribute('aria-label', 'Pause');
-    }
-  }
 
   // --- UPDATED Play/Pause Button Listener ---
   if (playPauseButton) {
@@ -85,17 +78,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (audio) {
     audio.addEventListener('play', () => { // Play listener
       justSeeked = false; // Ensure flag is false when playback definitely starts
-      updatePlayPauseIcon();
+      updatePlayPauseIcon(audio, playPauseButton, playIconSVG, pauseIconSVG);
     });
     audio.addEventListener('pause', () => { // Pause listener
       if (!isDragging) { // Only reset if pause wasn't caused by drag start
            justSeeked = false;
       }
-      updatePlayPauseIcon(); // Update icon regardless
+      updatePlayPauseIcon(audio, playPauseButton, playIconSVG, pauseIconSVG); // Update icon regardless
     });
     audio.addEventListener('ended', () => { // Ended listener
        justSeeked = false;
-       updatePlayPauseIcon();
+       updatePlayPauseIcon(audio, playPauseButton, playIconSVG, pauseIconSVG);
     });
 
     // Error listener from previous step
@@ -104,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(`Audio Error: ${audio.error?.message || 'Unknown Error'} (Code: ${audio.error?.code || 'N/A'})`);
     });
 
-    updatePlayPauseIcon(); // Initialize icon state
+    updatePlayPauseIcon(audio, playPauseButton, playIconSVG, pauseIconSVG); // Initialize icon state
   } else {
     console.error("Audio element not found.");
   }
@@ -346,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Load and Draw Formal Annotations ---
     d3.json('formal_annotations.json').then((annotations) => {
         formalAnnotationsData = annotations;
-        drawFormalAnnotations(formalAnnotationsData);
+        drawFormalAnnotations(svg, x, width, height, formalAnnotationsData);
       }).catch(error => {
         console.error("Error loading formal annotations:", error);
     });
@@ -461,12 +454,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initialize Playback and Setup Custom Toggles ---
     initializePlayback();
-    setupToggles();
+    setupToggles(stringsG, brassG, windsG, formalEnergyG);
 
   }).catch(error => {
     console.error('Error loading/processing data:', error);
     container.innerHTML = `<p style="color: red; padding: 20px;">Error loading data: ${error.message}. Check console.</p>`;
-    updatePlayPauseIcon();
+    updatePlayPauseIcon(audio, playPauseButton, playIconSVG, pauseIconSVG);
     if (playPauseButton) playPauseButton.disabled = true;
   });
 
@@ -551,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (formalAnnotationsData) {
-        drawFormalAnnotations(formalAnnotationsData);
+        drawFormalAnnotations(svg, x, width, height, formalAnnotationsData);
       }
   }
 
@@ -613,96 +606,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function drawFormalAnnotations(annotations) {
-      // Draws annotations based on current x-scale domain
-      if (!svg || !x) return;
+  // drawFormalAnnotations and setupToggles are now imported from separate modules
 
-      const annotationLayer = svg.selectAll('.formal-annotations-layer').data([null]);
-      const annotationLayerEnter = annotationLayer.enter().append('g')
-          .attr('class', 'formal-annotations-layer');
-      const annotationLayerUpdate = annotationLayerEnter.merge(annotationLayer);
-      annotationLayerUpdate.selectAll('*').remove(); // Clear previous
-
-      const domain = x.domain(); // Get current zoom range
-
-      annotations.forEach(ann => {
-        const startX = x(ann.start);
-        const endX = x(ann.end);
-        const measureX = x(ann.measure);
-
-
-        // Check if the annotation is within the current view
-        const isSectionInView = ann.type === "section" && ann.end > domain[0] && ann.start < domain[1];
-        const isMarkerInView = ann.type === "marker" && ann.measure >= domain[0] && ann.measure <= domain[1];
-
-        if (isSectionInView) {
-           // Clamp drawing coordinates to the visible area
-           const drawStartX = Math.max(0, startX);
-           const drawEndX = Math.min(width, endX);
-           const drawWidth = Math.max(0, drawEndX - drawStartX);
-
-           if (drawWidth > 0) {
-                annotationLayerUpdate.append('rect')
-                  .attr('x', drawStartX).attr('y', -60).attr('width', drawWidth)
-                  .attr('height', 20).attr('fill', ann.color).attr('opacity', 0.3);
-
-               // Calculate midpoint based on original measure values, then check if in view for label
-               const midMeasure = (ann.start + ann.end) / 2;
-               const midX = x(midMeasure);
-               if (midX >= 0 && midX <= width) { // Only draw label if midpoint is visible
-                  annotationLayerUpdate.append('text')
-                      .attr('x', midX).attr('y', -45).text(ann.label)
-                      .attr('fill', ann.color).attr('font-size', 10).attr('text-anchor', 'middle')
-                      .style('pointer-events', 'none');
-               }
-           }
-        } else if (isMarkerInView) {
-          // Check if marker position is within bounds before drawing
-          if (measureX >= 0 && measureX <= width) {
-              annotationLayerUpdate.append('line')
-                .attr('x1', measureX).attr('x2', measureX).attr('y1', -60).attr('y2', height)
-                .attr('stroke', ann.color).attr('stroke-width', 1).attr('stroke-dasharray', '2,2');
-              annotationLayerUpdate.append('text')
-                .attr('x', measureX + 3).attr('y', -65).text(ann.label)
-                .attr('fill', ann.color).attr('font-size', 10).style('pointer-events', 'none');
-          }
-        }
-      });
-  }
-
-  function setupToggles() {
-    // Sets up click handlers for the toggle buttons
-    const toggleStrings = document.getElementById('toggle-strings');
-    const toggleBrass = document.getElementById('toggle-brass');
-    const toggleWinds = document.getElementById('toggle-winds');
-    const toggleFormal = document.getElementById('toggle-formal');
-
-    if (toggleStrings) {
-      toggleStrings.addEventListener('click', () => {
-          const isActive = toggleStrings.classList.toggle('active');
-          if (stringsG) stringsG.style("display", isActive ? "inline" : "none");
-      });
-    }
-     if (toggleBrass) {
-        toggleBrass.addEventListener('click', () => {
-          const isActive = toggleBrass.classList.toggle('active');
-          if (brassG) brassG.style("display", isActive ? "inline" : "none");
-        });
-     }
-     if (toggleWinds) {
-        toggleWinds.addEventListener('click', () => {
-          const isActive = toggleWinds.classList.toggle('active');
-          if (windsG) windsG.style("display", isActive ? "inline" : "none");
-        });
-     }
-     if (toggleFormal) {
-        toggleFormal.addEventListener('click', () => {
-          const isActive = toggleFormal.classList.toggle('active');
-          if (formalEnergyG) {
-              formalEnergyG.style('display', isActive ? 'inline' : 'none');
-          }
-        });
-     }
-  }
-
-}); // End DOMContentLoaded
+} // end initVisualizer
