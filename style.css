@@ -53,3 +53,20 @@ body {
   background-color: #14B8A6; /* Teal */
   color: #fff;
 }
+
+/* Gentle ocean background animation */
+@keyframes ocean-wave {
+  0% { background-position: 0 0; }
+  100% { background-position: 200% 0; }
+}
+
+#visualizer.ocean-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, #0c254b, #163d72, #0c254b);
+  background-size: 200% 100%;
+  animation: ocean-wave 20s linear infinite;
+}
+
