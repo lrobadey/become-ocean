@@ -225,13 +225,25 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(`Calculating centered moving average with window size: ${windowSizeMeasures}, halfWindow: ${halfWindow}`);
     const paddedInstantaneousEnergy = Array(halfWindow).fill(0).concat(instantaneousEnergy);
     const paddedSmoothedEnergy = [];
+    let runningSum = 0;
+    let currentStart = 0;
+    let currentEnd = -1;
+    let currentCount = 0;
     for (let i = 0; i < paddedInstantaneousEnergy.length; i++) {
-        const windowStart = Math.max(0, i - halfWindow);
-        const windowEnd = Math.min(paddedInstantaneousEnergy.length, i + halfWindow + 1);
-        const windowData = paddedInstantaneousEnergy.slice(windowStart, windowEnd);
-        const sum = windowData.reduce((acc, val) => acc + val, 0);
-        const average = windowData.length > 0 ? sum / windowData.length : 0;
-        paddedSmoothedEnergy.push(average);
+        const targetStart = Math.max(0, i - halfWindow);
+        const targetEnd = Math.min(paddedInstantaneousEnergy.length - 1, i + halfWindow);
+        while (currentEnd < targetEnd) {
+            currentEnd++;
+            runningSum += paddedInstantaneousEnergy[currentEnd];
+            currentCount++;
+        }
+        while (currentStart < targetStart) {
+            runningSum -= paddedInstantaneousEnergy[currentStart];
+            currentStart++;
+            currentCount--;
+        }
+        const avg = currentCount > 0 ? runningSum / currentCount : 0;
+        paddedSmoothedEnergy.push(avg);
     }
     const smoothedEnergy = paddedSmoothedEnergy.slice(halfWindow, halfWindow + instantaneousEnergy.length);
     const maxSmoothedEnergy = d3.max(smoothedEnergy);
