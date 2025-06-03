@@ -293,25 +293,28 @@ document.addEventListener('DOMContentLoaded', () => {
       .attr('d', areaOverviewStr)
       .attr('fill', '#7DD3FC')
       .attr('fill-opacity', overviewAreaOpacity)
-      .attr('stroke', 'none');
+      .attr('stroke', 'none')
+      .style('pointer-events', 'none');
     overviewG.append('path')
       .datum(brassData)
       .attr('class', 'overview-area brass-area')
       .attr('d', areaOverviewBra)
       .attr('fill', '#1E40AF')
       .attr('fill-opacity', overviewAreaOpacity)
-      .attr('stroke', 'none');
+      .attr('stroke', 'none')
+      .style('pointer-events', 'none');
     overviewG.append('path')
       .datum(windsData)
       .attr('class', 'overview-area winds-area')
       .attr('d', areaOverviewWin)
       .attr('fill', '#14B8A6')
       .attr('fill-opacity', overviewAreaOpacity)
-      .attr('stroke', 'none');
+      .attr('stroke', 'none')
+      .style('pointer-events', 'none');
 
-    overviewG.append('path').datum(stringsData).attr('class', 'overview-line').attr('d', lineOverviewStr).attr('stroke', "#7DD3FC").attr('stroke-width', 1).attr('fill', 'none').attr('opacity', 0.6);
-    overviewG.append('path').datum(brassData).attr('class', 'overview-line').attr('d', lineOverviewBra).attr('stroke', "#1E40AF").attr('stroke-width', 1).attr('fill', 'none').attr('opacity', 0.6);
-    overviewG.append('path').datum(windsData).attr('class', 'overview-line').attr('d', lineOverviewWin).attr('stroke', "#14B8A6").attr('stroke-width', 1).attr('fill', 'none').attr('opacity', 0.6);
+    overviewG.append('path').datum(stringsData).attr('class', 'overview-line').attr('d', lineOverviewStr).attr('stroke', "#7DD3FC").attr('stroke-width', 1).attr('fill', 'none').attr('opacity', 0.6).style('pointer-events', 'none');
+    overviewG.append('path').datum(brassData).attr('class', 'overview-line').attr('d', lineOverviewBra).attr('stroke', "#1E40AF").attr('stroke-width', 1).attr('fill', 'none').attr('opacity', 0.6).style('pointer-events', 'none');
+    overviewG.append('path').datum(windsData).attr('class', 'overview-line').attr('d', lineOverviewWin).attr('stroke', "#14B8A6").attr('stroke-width', 1).attr('fill', 'none').attr('opacity', 0.6).style('pointer-events', 'none');
 
     overviewMarker = overviewG.append('line')
       .attr('class', 'overview-marker')
